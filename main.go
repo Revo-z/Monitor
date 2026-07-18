@@ -1,6 +1,11 @@
 ﻿package main
 
+import (
+	"Monitor/display"
+	"Monitor/ui"
+)
+
 func main() {
-	disp := NewDisplay()
-	RunUI(disp)
+	disp := display.NewDisplay()
+	ui.RunUI(disp)
 }

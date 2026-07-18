@@ -1,16 +1,22 @@
-﻿package main
+﻿package ui
 
 import (
 	"fmt"
 	"strconv"
+
+	"Monitor/config"
+	"Monitor/display"
+	"Monitor/logger"
+	"Monitor/monitor"
+	"Monitor/telnet"
 
 	"github.com/lxn/walk"
 	"github.com/lxn/win"
 )
 
 type uiState struct {
-	disp         *Display
-	mon          *Monitor
+	disp         *display.Display
+	mon          *monitor.Monitor
 
 	mw           *walk.MainWindow
 	ipEdit       *walk.LineEdit
@@ -30,35 +36,30 @@ func newLabel(parent walk.Container, text string) *walk.Label {
 	lb.SetText(text)
 	return lb
 }
-
 func newLineEdit(parent walk.Container) *walk.LineEdit {
 	le, _ := walk.NewLineEdit(parent)
 	return le
 }
-
 func newNumberEdit(parent walk.Container) *walk.NumberEdit {
 	ne, _ := walk.NewNumberEdit(parent)
 	return ne
 }
-
 func newPushButton(parent walk.Container, text string) *walk.PushButton {
 	btn, _ := walk.NewPushButton(parent)
 	btn.SetText(text)
 	return btn
 }
-
 func newRadioButton(parent walk.Container, text string) *walk.RadioButton {
 	rb, _ := walk.NewRadioButton(parent)
 	rb.SetText(text)
 	return rb
 }
-
 func newComposite(parent walk.Container) *walk.Composite {
 	c, _ := walk.NewComposite(parent)
 	return c
 }
 
-func RunUI(disp *Display) (int, error) {
+func RunUI(disp *display.Display) (int, error) {
 	s := &uiState{disp: disp}
 
 	mw, err := walk.NewMainWindow()
@@ -66,17 +67,15 @@ func RunUI(disp *Display) (int, error) {
 		return 1, err
 	}
 	s.mw = mw
-
-	mw.SetTitle(AppTitle)
-	mw.SetSize(walk.Size{Width: DefaultWidth, Height: DefaultHeight})
+	mw.SetTitle(config.AppTitle)
+	mw.SetSize(walk.Size{Width: config.DefaultWidth, Height: config.DefaultHeight})
 
 	screenW := int(win.GetSystemMetrics(win.SM_CXSCREEN))
 	screenH := int(win.GetSystemMetrics(win.SM_CYSCREEN))
 	mw.SetBounds(walk.Rectangle{
-		X:      (screenW - DefaultWidth) / 2,
-		Y:      (screenH - DefaultHeight) / 2,
-		Width:  DefaultWidth,
-		Height: DefaultHeight,
+		X: (screenW - config.DefaultWidth) / 2,
+		Y: (screenH - config.DefaultHeight) / 2,
+		Width: config.DefaultWidth, Height: config.DefaultHeight,
 	})
 
 	layout := walk.NewVBoxLayout()
@@ -102,8 +101,8 @@ func RunUI(disp *Display) (int, error) {
 	newLabel(row3, "刷新间隔:")
 	s.intervalEdit = newNumberEdit(row3)
 	s.intervalEdit.SetDecimals(2)
-	s.intervalEdit.SetValue(0.5)
-	s.intervalEdit.SetRange(0.01, 2.0)
+	s.intervalEdit.SetValue(config.DefaultInterval)
+	s.intervalEdit.SetRange(config.MinInterval, config.MaxInterval)
 	newLabel(row3, "秒 （范围 0.01–2）")
 
 	row4 := newComposite(mw)
@@ -122,24 +121,20 @@ func RunUI(disp *Display) (int, error) {
 
 	s.displayEdit, _ = walk.NewTextEdit(mw)
 	s.displayEdit.SetReadOnly(true)
-	font, _ := walk.NewFont(FontName, FontSize, 0)
+	font, _ := walk.NewFont(config.FontName, config.FontSize, 0)
 	s.displayEdit.SetFont(font)
 
 	row6 := newComposite(mw)
 	row6.SetLayout(walk.NewHBoxLayout())
-	for _, sc := range ShortcutCommands {
+	for _, sc := range config.ShortcutCommands {
 		btn := newPushButton(row6, sc.Label)
 		cmd := sc.Cmd
-		btn.Clicked().Attach(func() {
-			s.cmdEdit.SetText(cmd)
-		})
+		btn.Clicked().Attach(func() { s.cmdEdit.SetText(cmd) })
 	}
 
 	s.bindEvents()
-
 	mw.SetVisible(true)
 	win.SetForegroundWindow(mw.Handle())
-
 	return mw.Run(), nil
 }
 
@@ -163,21 +158,20 @@ func (s *uiState) bindEvents() {
 			return
 		}
 
-		conn, err := NewConn(ip, portStr)
+		conn, err := telnet.NewConn(ip, portStr)
 		if err != nil {
-			LogError(fmt.Sprintf("连接失败: %s", err.Error()))
+			logger.LogError(fmt.Sprintf("连接失败: %s", err.Error()))
 			walk.MsgBox(s.mw, "错误", fmt.Sprintf("连接失败: %s", err.Error()), walk.MsgBoxIconError)
 			return
 		}
 
-		s.mon = NewMonitor(conn, cmd, s.intervalEdit.Value())
+		s.mon = monitor.NewMonitor(conn, cmd, s.intervalEdit.Value())
 		s.mon.Start(func(text string) {
 			s.disp.Write(text)
 			s.mw.Synchronize(func() {
 				s.displayEdit.SetText(s.disp.Text())
 			})
 		})
-
 		s.setRunning(true)
 	})
 
@@ -194,13 +188,8 @@ func (s *uiState) bindEvents() {
 		s.displayEdit.SetText("")
 	})
 
-	s.overwriteRB.Clicked().Attach(func() {
-		s.disp.SetMode(true)
-	})
-
-	s.appendRB.Clicked().Attach(func() {
-		s.disp.SetMode(false)
-	})
+	s.overwriteRB.Clicked().Attach(func() { s.disp.SetMode(true) })
+	s.appendRB.Clicked().Attach(func() { s.disp.SetMode(false) })
 
 	s.mw.Closing().Attach(func(cancel *bool, reason walk.CloseReason) {
 		if s.mon != nil {

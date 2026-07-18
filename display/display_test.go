@@ -1,4 +1,4 @@
-package main
+﻿package display
 
 import (
 	"strings"
@@ -73,7 +73,7 @@ func TestMultipleClear(t *testing.T) {
 	d := NewDisplay()
 	d.Write("data")
 	d.Clear()
-	d.Clear() // 不应 panic
+	d.Clear()
 	if d.Text() != "" {
 		t.Errorf("连续两次 Clear 后应为空, 实际: %q", d.Text())
 	}

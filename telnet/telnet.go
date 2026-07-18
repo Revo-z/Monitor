@@ -1,4 +1,4 @@
-﻿package main
+﻿package telnet
 
 import (
 	"fmt"
@@ -17,12 +17,18 @@ const (
 	se   = 240
 )
 
-// Conn 封装 Telnet 连接，处理 IAC 协商。
+type Connector interface {
+	ReadBytes(delim byte) ([]byte, error)
+	Write(cmd string) error
+	Close() error
+}
+
+var _ Connector = (*Conn)(nil)
+
 type Conn struct {
 	conn net.Conn
 }
 
-// NewConn 建立到指定地址的 Telnet 连接。
 func NewConn(host, port string) (*Conn, error) {
 	addr := fmt.Sprintf("%s:%s", host, port)
 	conn, err := net.DialTimeout("tcp", addr, 10*time.Second)
@@ -32,24 +38,19 @@ func NewConn(host, port string) (*Conn, error) {
 	return &Conn{conn: conn}, nil
 }
 
-// ReadBytes 从连接读取字节流，过滤 IAC 协商并回复 WONT/DONT，
-// 返回直到 delim 的纯文本（不含 delim）。
 func (c *Conn) ReadBytes(delim byte) ([]byte, error) {
 	return filterTelnetWithReply(c.conn, delim)
 }
 
-// Write 发送命令，自动追加 \r\n。
 func (c *Conn) Write(cmd string) error {
 	_, err := fmt.Fprintf(c.conn, "%s\r\n", cmd)
 	return err
 }
 
-// Close 关闭连接。
 func (c *Conn) Close() error {
 	return c.conn.Close()
 }
 
-// filterTelnetWithReply 过滤 IAC 协商并回复 WONT/DONT，返回纯文本。
 func filterTelnetWithReply(rw io.ReadWriter, delim byte) ([]byte, error) {
 	var buf []byte
 	b := make([]byte, 1)
@@ -97,7 +98,6 @@ func filterTelnetWithReply(rw io.ReadWriter, delim byte) ([]byte, error) {
 	}
 }
 
-// filterTelnet 纯过滤版本（用于测试），不发送协商回复。
 func filterTelnet(r io.Reader, delim byte) ([]byte, error) {
 	var buf []byte
 	b := make([]byte, 1)

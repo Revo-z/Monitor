@@ -1,11 +1,10 @@
-﻿package main
+﻿package telnet
 
 import (
 	"bytes"
 	"testing"
 )
 
-// 构造包含 IAC 序列的字节切片
 func iacBytes(b ...byte) []byte {
 	return b
 }

@@ -1,4 +1,4 @@
-package main
+﻿package logger
 
 import (
 	"os"
@@ -10,10 +10,8 @@ import (
 func TestLogErrorCreatesFile(t *testing.T) {
 	orig := logPath
 	defer func() { logPath = orig }()
-
 	logPath = filepath.Join(t.TempDir(), "error.log")
 	LogError("test message")
-
 	if _, err := os.Stat(logPath); os.IsNotExist(err) {
 		t.Fatal("日志文件未创建")
 	}
@@ -22,10 +20,8 @@ func TestLogErrorCreatesFile(t *testing.T) {
 func TestLogErrorFormat(t *testing.T) {
 	orig := logPath
 	defer func() { logPath = orig }()
-
 	logPath = filepath.Join(t.TempDir(), "error.log")
 	LogError("hello world")
-
 	data, err := os.ReadFile(logPath)
 	if err != nil {
 		t.Fatal(err)
@@ -42,11 +38,9 @@ func TestLogErrorFormat(t *testing.T) {
 func TestLogErrorAppend(t *testing.T) {
 	orig := logPath
 	defer func() { logPath = orig }()
-
 	logPath = filepath.Join(t.TempDir(), "error.log")
 	LogError("first")
 	LogError("second")
-
 	data, err := os.ReadFile(logPath)
 	if err != nil {
 		t.Fatal(err)
@@ -63,10 +57,8 @@ func TestLogErrorAppend(t *testing.T) {
 func TestLogErrorEmptyMsg(t *testing.T) {
 	orig := logPath
 	defer func() { logPath = orig }()
-
 	logPath = filepath.Join(t.TempDir(), "error.log")
 	LogError("")
-
 	data, err := os.ReadFile(logPath)
 	if err != nil {
 		t.Fatal(err)
