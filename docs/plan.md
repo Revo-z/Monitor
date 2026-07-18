@@ -1,101 +1,101 @@
-# 开发计划
+# 瀵偓閸欐垼顓搁崚?
 
-> 本计划供 AI coding agent 按序执行。每步完成后需 `go build` 编译通过再提交。
-
----
-
-## 步骤 0：项目初始化
-
-**操作：**
-- 在项目根目录执行 `go mod init Monitor`
-- 执行 `go get github.com/lxn/walk` 拉取 walk 依赖
-- 执行 `go build` 确认空项目可编译（虽然还没代码，但 go mod tidy 后应无报错）
-
-**验证：** `go.mod` 和 `go.sum` 生成，`go build` 返回成功（或仅 "no Go files" 警告）
+> 閺堫剝顓搁崚鎺嶇返 AI coding agent 閹稿绨幍褑顢戦妴鍌涚槨濮濄儱鐣幋鎰倵闂団偓 `go build` 缂傛牞鐦ч柅姘崇箖閸愬秵褰佹禍銈冣偓?
 
 ---
 
-## 步骤 1：config.go — 集中定义所有可调常量
+## 濮濄儵顎?0閿涙岸銆嶉惄顔煎灥婵瀵?
 
-**文件：** `config.go`
+**閹垮秳缍旈敍?*
+- 閸︺劑銆嶉惄顔界壌閻╊喖缍嶉幍褑顢?`go mod init Monitor`
+- 閹笛嗩攽 `go get github.com/lxn/walk` 閹峰褰?walk 娓氭繆绂?
+- 閹笛嗩攽 `go build` 绾喛顓荤粚娲€嶉惄顔煎讲缂傛牞鐦ч敍鍫ｆ閻掓儼绻曞▽鈥插敩閻緤绱濇担?go mod tidy 閸氬骸绨查弮鐘冲Г闁挎瑱绱?
 
-**内容：**
-- 定义 `Config` 结构体（或直接定义 const 块），包含：
-  - 默认刷新间隔：`0.5`（秒）
-  - 最小间隔：`0.01`，最大间隔：`2.0`
-  - 超时：`10` 秒
-  - 回显结束标志：`'#'`
-  - 窗口默认尺寸：`1000 × 700`
-  - 窗口标题：`"DevMonitor"`
-  - 显示区字体：`"Consolas"`，字号 `14`
-  - 编码：`"UTF-8"`
-  - 错误日志文件名：`"error.log"`
-- 定义快捷命令列表：一个 `[]CommandShortcut` 切片，每个元素含 `Label`（按钮文本）和 `Cmd`（命令字符串）。占位内容：
-  - CPU → `display cpu-usage`
-  - 内存 → `display memory-usage`
-  - 磁盘 → `display disk-usage`
-  - 网络 → `display interface brief`
-  - 系统 → `display device`
-
-**验证：** `go build ./...`
+**妤犲矁鐦夐敍?* `go.mod` 閸?`go.sum` 閻㈢喐鍨氶敍瀹峠o build` 鏉╂柨娲栭幋鎰閿涘牊鍨ㄦ禒?"no Go files" 鐠€锕€鎲￠敍?
 
 ---
 
-## 步骤 2：logger.go — 错误日志写入
+## 濮濄儵顎?1閿涙瓭onfig.go 閳?闂嗗棔鑵戠€规矮绠熼幍鈧張澶婂讲鐠嬪啫鐖堕柌?
 
-**文件：** `logger.go`
+**閺傚洣娆㈤敍?* `config/config.go`
 
-**内容：**
-- 导出函数 `LogError(msg string)`
-- 以追加模式打开/创建程序同目录下的 `error.log`
-- 写入格式：`[2006-01-02 15:04:05] 错误描述\n`
-- 处理文件打开失败的情况（静默失败，不中断主流程）
-- 每次调用都打开→写入→关闭（简单可靠，避免长生命周期文件句柄）
+**閸愬懎顔愰敍?*
+- 鐎规矮绠?`Config` 缂佹挻鐎担鎿勭礄閹存牜娲块幒銉ョ暰娑?const 閸ф绱氶敍灞藉瘶閸氼偓绱?
+  - 姒涙顓婚崚閿嬫煀闂傛挳娈ч敍姝?.5`閿涘牏顫楅敍?
+  - 閺堚偓鐏忓繘妫块梾鏃撶窗`0.01`閿涘本娓舵径褔妫块梾鏃撶窗`2.0`
+  - 鐡掑懏妞傞敍姝?0` 缁?
+  - 閸ョ偞妯夌紒鎾存将閺嶅洤绻旈敍姝?#'`
+  - 缁愭褰涙妯款吇鐏忓搫顕敍姝?000 鑴?700`
+  - 缁愭褰涢弽鍥暯閿涙瓪"DevMonitor"`
+  - 閺勫墽銇氶崠鍝勭摟娴ｆ搫绱癭"Consolas"`閿涘苯鐡ч崣?`14`
+  - 缂傛牜鐖滈敍姝?UTF-8"`
+  - 闁挎瑨顕ら弮銉ョ箶閺傚洣娆㈤崥宥忕窗`"error.log"`
+- 鐎规矮绠熻箛顐ｅ祹閸涙垝鎶ら崚妤勩€冮敍姘娑?`[]CommandShortcut` 閸掑洨澧栭敍灞剧槨娑擃亜鍘撶槐鐘叉儓 `Label`閿涘牊瀵滈柦顔芥瀮閺堫剨绱氶崪?`Cmd`閿涘牆鎳℃禒銈呯摟缁楋缚瑕嗛敍澶堚偓鍌氬窗娴ｅ秴鍞寸€圭櫢绱?
+  - CPU 閳?`display cpu-usage`
+  - 閸愬懎鐡?閳?`display memory-usage`
+  - 绾句胶娲?閳?`display disk-usage`
+  - 缂冩垹绮?閳?`display interface brief`
+  - 缁崵绮?閳?`display device`
 
-**验证：** `go build ./...`；可写一个临时 main 调用 `LogError("test")` 确认文件生成，然后删掉临时 main
-
----
-
-## 步骤 3：display.go — 显示缓冲区管理
-
-**文件：** `display.go`
-
-**内容：**
-- 导出 `Display` 结构体，内部字段不导出
-- 导出构造 `NewDisplay() *Display`
-- 方法：
-  - `SetMode(overwrite bool)` — `true` 为覆盖模式，`false` 为追加模式
-  - `Write(text string)` — 覆盖模式先清空再写入；追加模式在末尾追加（每次追加前加一个换行 `\n` 分隔，首次不加）
-  - `Clear()` — 清空缓冲区
-  - `Text() string` — 返回当前缓冲区内容
-- 纯数据层，不依赖任何 UI 框架，不引入 `sync` 包（由调用方保证单 goroutine 访问）
-
-**验证：** `go build ./...`
+**妤犲矁鐦夐敍?* `go build ./...`
 
 ---
 
-## 步骤 4：telnet.go — Telnet 协议层
+## 濮濄儵顎?2閿涙ogger.go 閳?闁挎瑨顕ら弮銉ョ箶閸愭瑥鍙?
 
-**文件：** `telnet.go`
+**閺傚洣娆㈤敍?* `logger/logger.go`
 
-**内容：**
-- 导出 `Conn` 结构体，封装 `net.Conn`
-- 导出 `NewConn(host string, port string) (*Conn, error)`：
-  - 拼接地址 `host:port`，调用 `net.DialTimeout("tcp", addr, 10*time.Second)` 建立连接
-- 方法：
-  - `ReadBytes(delim byte) ([]byte, error)` — 从连接读取字节直到遇到 delim，底层处理 IAC 协商：
-    - 逐字节读取
-    - 遇到 `IAC(0xFF)`：读下一个字节判断命令类型
-      - `IAC WILL` → 回复 `IAC DONT <option>`
-      - `IAC DO` → 回复 `IAC WONT <option>`
-      - `IAC WONT` / `IAC DONT` → 忽略
-      - `IAC SB` → 读取直到 `IAC SE`，忽略子协商内容
-      - `IAC IAC` → 当作普通字节 `0xFF` 加入结果
-    - 非 IAC 字节：追加到结果缓冲区
-    - 遇到 delim 且非 IAC 前缀时返回累积的字节（不含 delim）
-  - `Write(cmd string) error` — 发送命令，自动追加 `\r\n`
-  - `Close() error` — 关闭连接
-- IAC 常量集中定义在文件顶部：
+**閸愬懎顔愰敍?*
+- 鐎电厧鍤崙鑺ユ殶 `LogError(msg string)`
+- 娴犮儴鎷烽崝鐘衬佸蹇斿ⅵ瀵偓/閸掓稑缂撶粙瀣碍閸氬瞼娲拌ぐ鏇氱瑓閻?`error.log`
+- 閸愭瑥鍙嗛弽鐓庣础閿涙瓪[2006-01-02 15:04:05] 闁挎瑨顕ら幓蹇氬牚\n`
+- 婢跺嫮鎮婇弬鍥︽閹垫挸绱戞径杈Е閻ㄥ嫭鍎忛崘纰夌礄闂堟瑩绮径杈Е閿涘奔绗夋稉顓熸焽娑撶粯绁︾粙瀣剁礆
+- 濮ｅ繑顐肩拫鍐暏闁姤澧﹀鈧埆鎺戝晸閸忋儮鍟嬮崗鎶芥４閿涘牏鐣濋崡鏇炲讲闂堢媴绱濋柆鍨帳闂€璺ㄦ晸閸涜棄鎳嗛張鐔告瀮娴犺泛褰為弻鍕剁礆
+
+**妤犲矁鐦夐敍?* `go build ./...`閿涙稑褰查崘娆庣娑擃亙澶嶉弮?main 鐠嬪啰鏁?`LogError("test")` 绾喛顓婚弬鍥︽閻㈢喐鍨氶敍宀€鍔ч崥搴″灩閹哄澶嶉弮?main
+
+---
+
+## 濮濄儵顎?3閿涙瓰isplay.go 閳?閺勫墽銇氱紓鎾冲暱閸栬櫣顓搁悶?
+
+**閺傚洣娆㈤敍?* `display/display.go`
+
+**閸愬懎顔愰敍?*
+- 鐎电厧鍤?`Display` 缂佹挻鐎担鎿勭礉閸愬懘鍎寸€涙顔屾稉宥咁嚤閸?
+- 鐎电厧鍤弸鍕偓?`NewDisplay() *Display`
+- 閺傝纭堕敍?
+  - `SetMode(overwrite bool)` 閳?`true` 娑撻缚顩惄鏍佸蹇ョ礉`false` 娑撻缚鎷烽崝鐘衬佸?
+  - `Write(text string)` 閳?鐟曞棛娲婂Ο鈥崇础閸忓牊绔荤粚鍝勫晙閸愭瑥鍙嗛敍娑滄嫹閸旂姵膩瀵繐婀張顐㈢啲鏉╄棄濮為敍鍫熺槨濞喡ゆ嫹閸旂姴澧犻崝鐘辩娑擃亝宕茬悰?`\n` 閸掑棝娈ч敍宀勵浕濞嗏€茬瑝閸旂媴绱?
+  - `Clear()` 閳?濞撳懐鈹栫紓鎾冲暱閸?
+  - `Text() string` 閳?鏉╂柨娲栬ぐ鎾冲缂傛挸鍟块崠鍝勫敶鐎?
+- 缁绢垱鏆熼幑顔肩湴閿涘奔绗夋笟婵婄娴犺缍?UI 濡楀棙鐏﹂敍灞肩瑝瀵洖鍙?`sync` 閸栧拑绱欓悽杈殶閻劍鏌熸穱婵婄槈閸?goroutine 鐠佸潡妫堕敍?
+
+**妤犲矁鐦夐敍?* `go build ./...`
+
+---
+
+## 濮濄儵顎?4閿涙elnet.go 閳?Telnet 閸楀繗顔呯仦?
+
+**閺傚洣娆㈤敍?* `telnet/telnet.go`
+
+**閸愬懎顔愰敍?*
+- 鐎电厧鍤?`Conn` 缂佹挻鐎担鎿勭礉鐏忎浇顥?`net.Conn`
+- 鐎电厧鍤?`NewConn(host string, port string) (*Conn, error)`閿?
+  - 閹峰吋甯撮崷鏉挎絻 `host:port`閿涘矁鐨熼悽?`net.DialTimeout("tcp", addr, 10*time.Second)` 瀵よ櫣鐝涙潻鐐村复
+- 閺傝纭堕敍?
+  - `ReadBytes(delim byte) ([]byte, error)` 閳?娴犲氦绻涢幒銉嚢閸欐牕鐡ч懞鍌滄纯閸掍即浜ｉ崚?delim閿涘苯绨崇仦鍌氼槱閻?IAC 閸楀繐鏅㈤敍?
+    - 闁劕鐡ч懞鍌濐嚢閸?
+    - 闁洤鍩?`IAC(0xFF)`閿涙俺顕版稉瀣╃娑擃亜鐡ч懞鍌氬灲閺傤厼鎳℃禒銈囪閸?
+      - `IAC WILL` 閳?閸ョ偛顦?`IAC DONT <option>`
+      - `IAC DO` 閳?閸ョ偛顦?`IAC WONT <option>`
+      - `IAC WONT` / `IAC DONT` 閳?韫囩晫鏆?
+      - `IAC SB` 閳?鐠囪褰囬惄鏉戝煂 `IAC SE`閿涘苯鎷烽悾銉ョ摍閸楀繐鏅㈤崘鍛啇
+      - `IAC IAC` 閳?瑜版挷缍旈弲顕€鈧艾鐡ч懞?`0xFF` 閸旂姴鍙嗙紒鎾寸亯
+    - 闂?IAC 鐎涙濡敍姘虫嫹閸旂姴鍩岀紒鎾寸亯缂傛挸鍟块崠?
+    - 闁洤鍩?delim 娑撴棃娼?IAC 閸撳秶绱戦弮鎯扮箲閸ョ偟鐤粔顖滄畱鐎涙濡敍鍫滅瑝閸?delim閿?
+  - `Write(cmd string) error` 閳?閸欐垿鈧礁鎳℃禒銈忕礉閼奉亜濮╂潻钘夊 `\r\n`
+  - `Close() error` 閳?閸忔娊妫存潻鐐村复
+- IAC 鐢悂鍣洪梿鍡曡厬鐎规矮绠熼崷銊︽瀮娴犲爼銆婇柈顭掔窗
   ```go
   const (
       iac  = 255
@@ -108,146 +108,146 @@
   )
   ```
 
-**验证：** `go build ./...`
+**妤犲矁鐦夐敍?* `go build ./...`
 
 ---
 
-## 步骤 5：monitor.go — 监控循环与业务逻辑
+## 濮濄儵顎?5閿涙onitor.go 閳?閻╂垶甯跺顏嗗箚娑撳簼绗熼崝锟犫偓鏄忕帆
 
-**文件：** `monitor.go`
+**閺傚洣娆㈤敍?* `monitor/monitor.go`
 
-**内容：**
-- 导出 `Monitor` 结构体（字段不导出）
-- 导出 `NewMonitor(conn *Conn, cmd string, interval float64) *Monitor`
-- 导出 `DisplayCallback func(text string)` 回调类型
-- 方法：
-  - `Start(callback DisplayCallback) error`：
-    1. 将状态置为"运行中"
-    2. 启动**读 goroutine**：循环调用 `conn.ReadBytes('#')`，读到完整块后通过 channel（`chan string`）发给主循环
-    3. 启动**监控主循环 goroutine**：
-       - 先立即发送第一条命令 `conn.Write(cmd)`
-       - 然后进入循环：
-         a. 用 `select` 同时监听：回显 channel、10 秒超时 timer、停止信号 channel
-         b. 收到回显 → 调用 `callback(text)` → 重置超时 timer → 启动间隔等待（`time.After` 对应 interval）→ 间隔到期后发送下一条命令 → 回到 a
-         c. 超时触发 → 调用 `LogError("命令执行超时")` → 调用 `callback("[错误] 命令执行超时，连接已断开")` → 断开连接 → 退出循环
-         d. 收到停止信号 → 退出循环
-  - `Stop()`：
-    - 发送停止信号
-    - 关闭 Telnet 连接
-    - 等待 goroutine 退出（通过 done channel 或 WaitGroup）
-    - 将状态置为"已停止"
-  - `IsRunning() bool` — 返回当前是否正在监控
-- 状态管理用 channel 通信，不加 mutex
+**閸愬懎顔愰敍?*
+- 鐎电厧鍤?`Monitor` 缂佹挻鐎担鎿勭礄鐎涙顔屾稉宥咁嚤閸戠尨绱?
+- 鐎电厧鍤?`NewMonitor(conn *Conn, cmd string, interval float64) *Monitor`
+- 鐎电厧鍤?`DisplayCallback func(text string)` 閸ョ偠鐨熺猾璇茬€?
+- 閺傝纭堕敍?
+  - `Start(callback DisplayCallback) error`閿?
+    1. 鐏忓棛濮搁幀浣虹枂娑?鏉╂劘顢戞稉?
+    2. 閸氼垰濮?*鐠?goroutine**閿涙艾鎯婇悳顖濈殶閻?`conn.ReadBytes('#')`閿涘矁顕伴崚鏉跨暚閺佹潙娼￠崥搴ㄢ偓姘崇箖 channel閿涘潉chan string`閿涘褰傜紒娆庡瘜瀵邦亞骞?
+    3. 閸氼垰濮?*閻╂垶甯舵稉璇叉儕閻?goroutine**閿?
+       - 閸忓牏鐝涢崡鍐插絺闁胶顑囨稉鈧弶鈥虫嚒娴?`conn.Write(cmd)`
+       - 閻掕泛鎮楁潻娑樺弳瀵邦亞骞嗛敍?
+         a. 閻?`select` 閸氬本妞傞惄鎴濇儔閿涙艾娲栭弰?channel閵?0 缁夋帟绉撮弮?timer閵嗕礁浠犲顫繆閸?channel
+         b. 閺€璺哄煂閸ョ偞妯?閳?鐠嬪啰鏁?`callback(text)` 閳?闁插秶鐤嗙搾鍛 timer 閳?閸氼垰濮╅梻鎾缁涘绶熼敍鍧則ime.After` 鐎电懓绨?interval閿涘鍟?闂傛挳娈ч崚鐗堟埂閸氬骸褰傞柅浣风瑓娑撯偓閺夆€虫嚒娴?閳?閸ョ偛鍩?a
+         c. 鐡掑懏妞傜憴锕€褰?閳?鐠嬪啰鏁?`LogError("閸涙垝鎶ら幍褑顢戠搾鍛")` 閳?鐠嬪啰鏁?`callback("[闁挎瑨顕 閸涙垝鎶ら幍褑顢戠搾鍛閿涘矁绻涢幒銉ュ嚒閺傤厼绱?)` 閳?閺傤厼绱戞潻鐐村复 閳?闁偓閸戝搫鎯婇悳?
+         d. 閺€璺哄煂閸嬫粍顒涙穱鈥冲娇 閳?闁偓閸戝搫鎯婇悳?
+  - `Stop()`閿?
+    - 閸欐垿鈧礁浠犲顫繆閸?
+    - 閸忔娊妫?Telnet 鏉╃偞甯?
+    - 缁涘绶?goroutine 闁偓閸戠尨绱欓柅姘崇箖 done channel 閹?WaitGroup閿?
+    - 鐏忓棛濮搁幀浣虹枂娑?瀹告彃浠犲?
+  - `IsRunning() bool` 閳?鏉╂柨娲栬ぐ鎾冲閺勵垰鎯佸锝呮躬閻╂垶甯?
+- 閻樿埖鈧胶顓搁悶鍡欐暏 channel 闁矮淇婇敍灞肩瑝閸?mutex
 
-**要点：**
-- 读 goroutine 中 `ReadBytes` 返回的 error 直接走超时/断连逻辑（通过网络错误 channel 通知主循环）
-- 间隔 timer 在每次收到完整回显后重置，避免多 timer 堆积
-- 防重入：`Start` 调用时若 `IsRunning()` 为 true，直接 return（不重复启动）
+**鐟曚胶鍋ｉ敍?*
+- 鐠?goroutine 娑?`ReadBytes` 鏉╂柨娲栭惃?error 閻╁瓨甯寸挧鎷岀Т閺?閺傤叀绻涢柅鏄忕帆閿涘牓鈧俺绻冪純鎴犵捕闁挎瑨顕?channel 闁氨鐓℃稉璇叉儕閻滎垽绱?
+- 闂傛挳娈?timer 閸︺劍鐦″▎鈩冩暪閸掓澘鐣弫鏉戞礀閺勬儳鎮楅柌宥囩枂閿涘矂浼╅崗宥咁樋 timer 閸棛袧
+- 闂冩煡鍣搁崗銉窗`Start` 鐠嬪啰鏁ら弮鎯板 `IsRunning()` 娑?true閿涘瞼娲块幒?return閿涘牅绗夐柌宥咁槻閸氼垰濮╅敍?
 
-**验证：** `go build ./...`
+**妤犲矁鐦夐敍?* `go build ./...`
 
 ---
 
-## 步骤 6：ui.go — 窗口布局与事件绑定
+## 濮濄儵顎?6閿涙i.go 閳?缁愭褰涚敮鍐ㄧ湰娑撳簼绨ㄦ禒鍓佺拨鐎?
 
-**文件：** `ui.go`
+**閺傚洣娆㈤敍?* `ui/ui.go`
 
-**内容（使用 walk 库）：**
+**閸愬懎顔愰敍鍫滃▏閻?walk 鎼存搫绱氶敍?*
 
-### 6.1 窗口创建
-- 创建 `walk.MainWindow`，标题 `"DevMonitor"`，初始尺寸 `1000×700`，允许自由缩放
-- 窗口关闭时调用 `monitor.Stop()` 确保资源释放
+### 6.1 缁愭褰涢崚娑樼紦
+- 閸掓稑缂?`walk.MainWindow`閿涘本鐖ｆ０?`"DevMonitor"`閿涘苯鍨垫慨瀣槀鐎?`1000鑴?00`閿涘苯鍘戠拋姝屽殰閻㈣京缂夐弨?
+- 缁愭褰涢崗鎶芥４閺冩儼鐨熼悽?`monitor.Stop()` 绾喕绻氱挧鍕爱闁插﹥鏂?
 
-### 6.2 控件布局
-- 使用 `walk.VBoxLayout` 或手动布局（建议用 Composite + GridLayout / 手动 SetBounds）
-- 从上到下：
-  1. **顶部参数区**（第一行）：IP 输入框 + 端口输入框
-  2. **第二行**：监控命令输入框 + 刷新间隔 NumberEdit + "秒"标签
-  3. **第三行**：显示模式 GroupBox（含两个 RadioButton：覆盖/追加，默认覆盖）+ "清空显示"按钮
-  4. **第四行**："开始"按钮 + "停止"按钮
-  5. **显示区**：多行只读 TextEdit，占窗口主体，VScroll，Consolas 14pt，白底黑字
-  6. **底部快捷按钮栏**：根据 `config.go` 中的快捷命令列表动态生成 PushButton
+### 6.2 閹貉傛鐢啫鐪?
+- 娴ｈ法鏁?`walk.VBoxLayout` 閹存牗澧滈崝銊ョ鐏炩偓閿涘牆缂撶拋顔炬暏 Composite + GridLayout / 閹靛濮?SetBounds閿?
+- 娴犲簼绗傞崚棰佺瑓閿?
+  1. **妞ゅ爼鍎撮崣鍌涙殶閸?*閿涘牏顑囨稉鈧悰宀嬬礆閿涙P 鏉堟挸鍙嗗?+ 缁旑垰褰涙潏鎾冲弳濡?
+  2. **缁楊兛绨╃悰?*閿涙氨娲冮幒褍鎳℃禒銈堢翻閸忋儲顢?+ 閸掗攱鏌婇梻鎾 NumberEdit + "缁?閺嶅洨顒?
+  3. **缁楊兛绗佺悰?*閿涙碍妯夌粈鐑樐佸?GroupBox閿涘牆鎯堟稉銈勯嚋 RadioButton閿涙俺顩惄?鏉╄棄濮為敍宀勭帛鐠併倛顩惄鏍电礆+ "濞撳懐鈹栭弰鍓с仛"閹稿鎸?
+  4. **缁楊剙娲撶悰?*閿?瀵偓婵?閹稿鎸?+ "閸嬫粍顒?閹稿鎸?
+  5. **閺勫墽銇氶崠?*閿涙艾顦跨悰灞藉涧鐠?TextEdit閿涘苯宕扮粣妤€褰涙稉璁崇秼閿涘Scroll閿涘瓔onsolas 14pt閿涘瞼娅ф惔鏇㈢拨鐎?
+  6. **鎼存洟鍎磋箛顐ｅ祹閹稿鎸抽弽?*閿涙碍鐗撮幑?`config/config.go` 娑擃厾娈戣箛顐ｅ祹閸涙垝鎶ら崚妤勩€冮崝銊︹偓浣烘晸閹?PushButton
 
-### 6.3 控件属性
-| 控件 | walk 类型 | 属性 |
+### 6.3 閹貉傛鐏炵偞鈧?
+| 閹貉傛 | walk 缁鐎?| 鐏炵偞鈧?|
 |---|---|---|
-| IP 输入 | `LineEdit` | 无默认值 |
-| 端口输入 | `LineEdit` | 无默认值 |
-| 命令输入 | `LineEdit` | 无默认值 |
-| 间隔输入 | `NumberEdit` | 范围 0.01–2，默认 0.5，2 位小数 |
-| 覆盖 Radio | `RadioButton` | 默认选中，文本"覆盖" |
-| 追加 Radio | `RadioButton` | 文本"追加" |
-| 清空按钮 | `PushButton` | 文本"清空显示" |
-| 开始按钮 | `PushButton` | 文本"开始" |
-| 停止按钮 | `PushButton` | 文本"停止"，初始置灰 |
-| 显示区 | `TextEdit` | ReadOnly, VScroll, 等宽字体 |
-| 快捷按钮 | `PushButton` × N | 文本为 Label |
+| IP 鏉堟挸鍙?| `LineEdit` | 閺冪娀绮拋銈呪偓?|
+| 缁旑垰褰涙潏鎾冲弳 | `LineEdit` | 閺冪娀绮拋銈呪偓?|
+| 閸涙垝鎶ゆ潏鎾冲弳 | `LineEdit` | 閺冪娀绮拋銈呪偓?|
+| 闂傛挳娈ф潏鎾冲弳 | `NumberEdit` | 閼煎啫娲?0.01閳?閿涘矂绮拋?0.5閿? 娴ｅ秴鐨弫?|
+| 鐟曞棛娲?Radio | `RadioButton` | 姒涙顓婚柅澶夎厬閿涘本鏋冮張?鐟曞棛娲? |
+| 鏉╄棄濮?Radio | `RadioButton` | 閺傚洦婀?鏉╄棄濮? |
+| 濞撳懐鈹栭幐澶愭尦 | `PushButton` | 閺傚洦婀?濞撳懐鈹栭弰鍓с仛" |
+| 瀵偓婵瀵滈柦?| `PushButton` | 閺傚洦婀?瀵偓婵? |
+| 閸嬫粍顒涢幐澶愭尦 | `PushButton` | 閺傚洦婀?閸嬫粍顒?閿涘苯鍨垫慨瀣枂閻?|
+| 閺勫墽銇氶崠?| `TextEdit` | ReadOnly, VScroll, 缁涘顔旂€涙ぞ缍?|
+| 韫囶偅宓庨幐澶愭尦 | `PushButton` 鑴?N | 閺傚洦婀版稉?Label |
 
-### 6.4 事件绑定
-- **"开始"按钮 clicked**：
-  1. 校验 IP 非空、端口为合法数字（1–65535）、命令非空
-  2. 校验失败 → 弹出 `walk.MsgBox` 提示
-  3. 校验通过 → 创建 `telnet.NewConn(ip, port)` → 创建 `monitor.NewMonitor(conn, cmd, interval)`
-  4. 定义 `DisplayCallback`：内部调用 `display.Write(text)`，然后通过 `walk.InvokeSync` 更新显示区内容
-  5. 调用 `monitor.Start(callback)`
-  6. 更新按钮状态：开始置灰、停止可用
-  7. 连接失败时弹框提示错误并记日志
-- **"停止"按钮 clicked**：
-  1. 调用 `monitor.Stop()`
-  2. 更新按钮状态：开始可用、停止置灰
-- **"清空显示" clicked**：调用 `display.Clear()` + 更新显示区
-- **显示模式 RadioButton clicked**：更新 `display.SetMode()`（覆盖=`true`，追加=`false`）
-- **窗口关闭**：调用 `monitor.Stop()`，然后 `mainWindow.Close()`
-- **快捷按钮 clicked**：将对应命令写入命令输入框
+### 6.4 娴滃娆㈢紒鎴濈暰
+- **"瀵偓婵?閹稿鎸?clicked**閿?
+  1. 閺嶏繝鐛?IP 闂堢偟鈹栭妴浣侯伂閸欙絼璐熼崥鍫熺《閺佹澘鐡ч敍?閳?5535閿涘鈧礁鎳℃禒銈夋姜缁?
+  2. 閺嶏繝鐛欐径杈Е 閳?瀵懓鍤?`walk.MsgBox` 閹绘劗銇?
+  3. 閺嶏繝鐛欓柅姘崇箖 閳?閸掓稑缂?`telnet.NewConn(ip, port)` 閳?閸掓稑缂?`monitor.NewMonitor(conn, cmd, interval)`
+  4. 鐎规矮绠?`DisplayCallback`閿涙艾鍞撮柈銊ㄧ殶閻?`display.Write(text)`閿涘瞼鍔ч崥搴ㄢ偓姘崇箖 `walk.InvokeSync` 閺囧瓨鏌婇弰鍓с仛閸栧搫鍞寸€?
+  5. 鐠嬪啰鏁?`monitor.Start(callback)`
+  6. 閺囧瓨鏌婇幐澶愭尦閻樿埖鈧緤绱板鈧慨瀣枂閻忚埇鈧礁浠犲銏犲讲閻?
+  7. 鏉╃偞甯存径杈Е閺冭泛鑴婂鍡樺絹缁€娲晩鐠囶垰鑻熺拋鐗堟）韫?
+- **"閸嬫粍顒?閹稿鎸?clicked**閿?
+  1. 鐠嬪啰鏁?`monitor.Stop()`
+  2. 閺囧瓨鏌婇幐澶愭尦閻樿埖鈧緤绱板鈧慨瀣讲閻劊鈧礁浠犲銏㈢枂閻?
+- **"濞撳懐鈹栭弰鍓с仛" clicked**閿涙俺鐨熼悽?`display.Clear()` + 閺囧瓨鏌婇弰鍓с仛閸?
+- **閺勫墽銇氬Ο鈥崇础 RadioButton clicked**閿涙碍娲块弬?`display.SetMode()`閿涘牐顩惄?`true`閿涘矁鎷烽崝?`false`閿?
+- **缁愭褰涢崗鎶芥４**閿涙俺鐨熼悽?`monitor.Stop()`閿涘瞼鍔ч崥?`mainWindow.Close()`
+- **韫囶偅宓庨幐澶愭尦 clicked**閿涙艾鐨㈢€电懓绨查崨鎴掓姢閸愭瑥鍙嗛崨鎴掓姢鏉堟挸鍙嗗?
 
-### 6.5 端口校验
-- 点击"开始"时校验端口字符串：
-  - 非空、纯数字、范围 1–65535
-  - 不合法则弹框提示
+### 6.5 缁旑垰褰涢弽锟犵崣
+- 閻愮懓鍤?瀵偓婵?閺冭埖鐗庢宀€顏崣锝呯摟缁楋缚瑕嗛敍?
+  - 闂堢偟鈹栭妴浣哄嚱閺佹澘鐡ч妴浣藉瘱閸?1閳?5535
+  - 娑撳秴鎮庡▔鏇炲灟瀵顢嬮幓鎰仛
 
-**验证：** `go build ./...`
+**妤犲矁鐦夐敍?* `go build ./...`
 
 ---
 
-## 步骤 7：main.go — 入口组装
+## 濮濄儵顎?7閿涙ain.go 閳?閸忋儱褰涚紒鍕棅
 
-**文件：** `main.go`
+**閺傚洣娆㈤敍?* `main.go`锛堟牴鐩綍锛?
 
-**内容：**
+**閸愬懎顔愰敍?*
 - `package main`
-- `func main()`：
-  - 创建 `Display` 实例
-  - 调用 `ui.RunApp(display)` 启动 UI（`ui.go` 导出 `RunApp` 函数，接收 `*Display`）
-  - walk 的 `RunApp` 等价于创建窗口并进入消息循环
+- `func main()`閿?
+  - 閸掓稑缂?`Display` 鐎圭偘绶?
+  - 鐠嬪啰鏁?`ui.RunApp(display)` 閸氼垰濮?UI閿涘潉ui.go` 鐎电厧鍤?`RunApp` 閸戣姤鏆熼敍灞惧复閺€?`*Display`閿?
+  - walk 閻?`RunApp` 缁涘鐜禍搴″灡瀵よ櫣鐛ラ崣锝呰嫙鏉╂稑鍙嗗☉鍫熶紖瀵邦亞骞?
 
-> 说明：`ui.go` 负责创建窗口以及持有 `*Monitor`、`*Display` 等实例的引用，`main.go` 仅做组装。
+> 鐠囧瓨妲戦敍姝歶i.go` 鐠愮喕鐭楅崚娑樼紦缁愭褰涙禒銉ュ挤閹镐焦婀?`*Monitor`閵嗕梗*Display` 缁涘鐤勬笟瀣畱瀵洜鏁ら敍瀹峬ain.go` 娴犲懎浠涚紒鍕棅閵?
 
-**验证：** `go build ./...`
-
----
-
-## 步骤 8：集成验证
-
-**操作：**
-- 执行 `go build -o DevMonitor.exe`
-- 检查生成的 `DevMonitor.exe` 文件
-- 执行 `go vet ./...` 做静态检查
-- 如有可测试的逻辑（如 `display.go` 的纯函数），编写 `display_test.go` 做单元测试
-
-**验证：** `go build` 无报错，`go vet` 无告警
+**妤犲矁鐦夐敍?* `go build ./...`
 
 ---
 
-## 提交节奏
+## 濮濄儵顎?8閿涙岸娉﹂幋鎰扮崣鐠?
 
-| 步骤 | commit message |
+**閹垮秳缍旈敍?*
+- 閹笛嗩攽 `go build -o DevMonitor.exe`
+- 濡偓閺屻儳鏁撻幋鎰畱 `DevMonitor.exe` 閺傚洣娆?
+- 閹笛嗩攽 `go vet ./...` 閸嬫岸娼ら幀浣诡梾閺?
+- 婵″倹婀侀崣顖涚ゴ鐠囨洜娈戦柅鏄忕帆閿涘牆顩?`display/display.go` 閻ㄥ嫮鍑介崙鑺ユ殶閿涘绱濈紓鏍у晸 `display/display_test.go` 閸嬫艾宕熼崗鍐╃ゴ鐠?
+
+**妤犲矁鐦夐敍?* `go build` 閺冪姵濮ら柨娆欑礉`go vet` 閺冪姴鎲＄拃?
+
+---
+
+## 閹绘劒姘﹂懞鍌氼殧
+
+| 濮濄儵顎?| commit message |
 |---|---|
-| 0 | `初始化: Go module 及 walk 依赖` |
-| 1 | `config.go: 集中定义可调常量与快捷命令列表` |
-| 2 | `logger.go: 实现错误日志追加写入` |
-| 3 | `display.go: 实现显示缓冲区与覆盖/追加模式` |
-| 4 | `telnet.go: 实现 Telnet 连接与 IAC 协商处理` |
-| 5 | `monitor.go: 实现监控循环、超时控制与 goroutine 管理` |
-| 6 | `ui.go: 实现窗口布局与事件绑定` |
-| 7 | `main.go: 实现入口组装` |
-| 8 | `集成: 最终编译验证与静态检查` |
+| 0 | `閸掓繂顫愰崠? Go module 閸?walk 娓氭繆绂哷 |
+| 1 | `config/config.go: 闂嗗棔鑵戠€规矮绠熼崣顖濈殶鐢悂鍣烘稉搴℃彥閹瑰嘲鎳℃禒銈呭灙鐞涒暅 |
+| 2 | `logger/logger.go: 鐎圭偟骞囬柨娆掝嚖閺冦儱绻旀潻钘夊閸愭瑥鍙哷 |
+| 3 | `display/display.go: 鐎圭偟骞囬弰鍓с仛缂傛挸鍟块崠杞扮瑢鐟曞棛娲?鏉╄棄濮炲Ο鈥崇础` |
+| 4 | `telnet/telnet.go: 鐎圭偟骞?Telnet 鏉╃偞甯存稉?IAC 閸楀繐鏅㈡径鍕倞` |
+| 5 | `monitor/monitor.go: 鐎圭偟骞囬惄鎴炲付瀵邦亞骞嗛妴浣界Т閺冭埖甯堕崚鏈电瑢 goroutine 缁狅紕鎮奰 |
+| 6 | `ui/ui.go: 鐎圭偟骞囩粣妤€褰涚敮鍐ㄧ湰娑撳簼绨ㄦ禒鍓佺拨鐎规瓪 |
+| 7 | `main.go: 鐎圭偟骞囬崗銉ュ經缂佸嫯顥奰 |
+| 8 | `闂嗗棙鍨? 閺堚偓缂佸牏绱拠鎴︾崣鐠囦椒绗岄棃娆愨偓浣诡梾閺岊櫐 |
