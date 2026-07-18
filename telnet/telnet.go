@@ -1,4 +1,4 @@
-﻿package telnet
+package telnet
 
 import (
 	"fmt"
@@ -30,7 +30,7 @@ type Conn struct {
 }
 
 func NewConn(host, port string) (*Conn, error) {
-	addr := fmt.Sprintf("%s:%s", host, port)
+	addr := net.JoinHostPort(host, port)
 	conn, err := net.DialTimeout("tcp", addr, 10*time.Second)
 	if err != nil {
 		return nil, err
